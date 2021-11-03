@@ -4,6 +4,7 @@ const stream = new fs.ReadStream(path.join(__dirname, '/text.txt'), { encoding: 
 
 stream.on('readable', () => {
   const data = stream.read();
-  data !== null ? console.log(data) : '';
+  if (data) {
+    console.log(data);
+  }
 })
-
