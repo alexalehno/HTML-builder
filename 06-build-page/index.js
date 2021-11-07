@@ -21,21 +21,38 @@ async function createPage() {
   const htmlPage = await buildHtml(template, components, componentsPath);
   writeFile(htmlPage, indexPath);
 
-  // .........................................
 
   const styles = await readDir(stylesPath);
   const style = await buildStyle(styles, stylesPath);
   writeFile(style, stylePath);
 
-  // .........................................
 
   const assets = await readDir(assetsPath);
   await makekDir(projectAssetsPath);
   await deleteFile(projectAssetsPath);
-  await deleteDir(projectAssetsPath);  //  ???
+
+  const depth = await dirDepth(projectAssetsPath);
+
+  for (let i = 0; i < depth; i++) {
+    await deleteDir(projectAssetsPath);
+  }
+
   copyDir(assets, assetsPath, projectPath);
 }
 
+async function dirDepth(dataPath) {
+  const data = await readDir(dataPath);
+  let count = 0;
+
+  for (let item of data) {
+    if (data.length) {
+      const itemPath = path.join(dataPath, item);
+      count = Math.max(await dirDepth(itemPath), count);
+    }
+  }
+
+  return count + 1;
+}
 
 async function deleteDir(dataPath) {
   const data = await readDir(dataPath);
@@ -43,7 +60,6 @@ async function deleteDir(dataPath) {
   if (data.length) {
     for (let item of data) {
       const itemPath = path.join(dataPath, item);
-      console.log(itemPath);
       await deleteDir(itemPath);
     }
 
